@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,8 +22,9 @@ public class ServerPoolController {
     ServerPoolService   serverPoolService;
 
     @GetMapping
-    public String hello(){
-        return "hello from server";
+    public ResponseEntity<Object> getAllServerPools(){
+        List<ServerPool> serverPoolList = serverPoolService.getAllServerPools();
+        return ResponseEntity.status(HttpStatus.OK).body(serverPoolList);
     }
 
     @PostMapping("/create")

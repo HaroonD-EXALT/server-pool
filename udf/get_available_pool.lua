@@ -1,4 +1,4 @@
-function get_available_pool(stream, state, memory )
+function available_pools(stream, state, memory )
     local function map_pool(record)
         return map{PK=record.PK, state=record.state,capacity=record.capacity, serverList=record.serverList}
     end
