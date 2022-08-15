@@ -20,7 +20,6 @@ public class ServerDao implements Dao<Server> {
     // creating new server-pool
     @Override
     public Server save(Server item) throws InterruptedException {
-//        item.setId(getNextId());
         database.getMapper().save(item);
         System.out.println("server created");
         return item;
@@ -34,17 +33,11 @@ public class ServerDao implements Dao<Server> {
     @Override
     public List<Server> getAll() {
         List<Server> servers= database.getMapper().scan(Server.class);
-        for (Server s:servers
-             ) {
-            System.out.println(s);
-        }
         return  servers;
     }
 
     @Override
     public boolean update(Server item) {
-        System.out.println(":---");
-        System.out.println(item);
         database.getMapper().update(item);
         return true;
     }
@@ -55,7 +48,6 @@ public class ServerDao implements Dao<Server> {
     }
 
     public synchronized Server findAvailableServer(double memory) {
-        System.out.println("current thread : "+Thread.currentThread().toString());
 //        if there is no server in database
         if (database.getMapper().scan(Server.class).size() == 0){
             return null;

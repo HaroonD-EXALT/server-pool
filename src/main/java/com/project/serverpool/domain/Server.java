@@ -66,8 +66,6 @@ public class Server {
     }
 
     public void addClient(Client client){
-        System.out.println(client
-        );
         this.clients.add(client);
     }
 
