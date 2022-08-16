@@ -15,7 +15,6 @@ public class ServerService {
     private final ServerDao serverDao = new ServerDao();
     private final ClientDao clientDao = new ClientDao();
 
-
     /*
         hash(server):{
                          "server": Server,
