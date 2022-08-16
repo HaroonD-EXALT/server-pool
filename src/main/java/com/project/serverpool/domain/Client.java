@@ -6,6 +6,7 @@ import com.aerospike.mapper.annotations.AerospikeRecord;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Max;
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.UUID;
 
-@Component
 @Getter
 @Setter
 @AerospikeRecord(namespace="test", set="client")
+@ComponentScan
 public class Client {
 
     @AerospikeKey

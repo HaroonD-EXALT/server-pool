@@ -20,7 +20,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Component
 @AerospikeRecord(namespace="test", set="server")
 @ComponentScan
 public class Server {
