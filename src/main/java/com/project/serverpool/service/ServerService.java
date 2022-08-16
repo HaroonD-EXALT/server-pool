@@ -33,6 +33,7 @@ public class ServerService {
 
     public  Server locateServer(Client client) throws Exception {
         Server server = new Server();
+        boolean isRecourseLocatedInCreatingSate = false;
         synchronized (server){
             server = serverDao.findAvailableServer(client.getMemory());
         }
@@ -61,13 +62,25 @@ public class ServerService {
                         serverData.put("server", entryServer);
                         waitingList.put(serverKey, serverData);
                         // #TODO:solve return issue
-                        return entryServer;
+                        //server in the creating state
+                        isRecourseLocatedInCreatingSate = true;
+                        server =entryServer;
                     }
                 }
             }
             // current waiting list array do not have available resource in the creating state servers
             // spin new server
-            server = createNewServer(client);
+            if (isRecourseLocatedInCreatingSate){
+                //wait until finish creating
+                while (waitingList.get(server.hashCode()) != null){
+
+                }
+                return server;
+
+            }
+            else {
+                server = createNewServer(client);
+            }
 
         } else {
             //there is available recourse in the current active servers

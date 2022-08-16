@@ -27,7 +27,7 @@ public class ServerDao implements Dao<Server> {
 
     @Override
     public Server getById(String id) throws Exception {
-        return null;
+        return database.getMapper().read(Server.class,id);
     }
 
     @Override
