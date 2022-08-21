@@ -1,4 +1,4 @@
-package com.project.serverpool.model.dto;
+package com.project.serverpool.DTO;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -13,7 +13,7 @@ public class ClientDto {
 
     @Max(value = 100 , message = "Value should be less then equal to 100 GB")
     @Min(value = 1 , message = "Value should be greater then equal to 1 GB")
-    private int memory ;
+    private long memory ;
 
     public String getDatabase() {
         return database;
@@ -23,7 +23,7 @@ public class ClientDto {
         this.database = database;
     }
 
-    public int getMemory() {
+    public long getMemory() {
         return memory;
     }
 

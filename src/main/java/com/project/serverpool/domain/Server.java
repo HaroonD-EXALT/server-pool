@@ -1,12 +1,14 @@
 package com.project.serverpool.domain;
 
+import com.aerospike.client.query.IndexCollectionType;
+import com.aerospike.client.query.IndexType;
 import com.aerospike.mapper.annotations.AerospikeBin;
 import com.aerospike.mapper.annotations.AerospikeKey;
 import com.aerospike.mapper.annotations.AerospikeRecord;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.aerospike.mapping.Document;
+import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Max;
@@ -17,29 +19,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.data.aerospike.annotation.Indexed;
 
-@Getter
-@Setter
-@AerospikeRecord(namespace="test", set="server")
-@ComponentScan
+
+@Data
+@Document
+@AllArgsConstructor
 public class Server {
-    @AerospikeKey
-    @AerospikeBin(name = "PK")
+    @Id
     private String id;
 
 
 
-    @AerospikeBin
+
+    @Indexed(type = IndexType.STRING, collectionType = IndexCollectionType.DEFAULT)
     private String state;
 
-    @AerospikeBin
     @NotNull
     @NotEmpty
     @Max(value = 100 , message = "Value should be less then equal to 100 GB")
     @Min(value = 1 , message = "Value should be greater then equal to 1 GB")
+    @Indexed(type = IndexType.NUMERIC, collectionType = IndexCollectionType.DEFAULT)
     private long capacity ;
 
-    @AerospikeBin
     private List<Client> clients;
 
     public Server() {
