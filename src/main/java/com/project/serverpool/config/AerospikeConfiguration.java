@@ -1,29 +1,19 @@
 package com.project.serverpool.config;
 
 import com.aerospike.client.Host;
-import com.aerospike.client.IAerospikeClient;
-import com.project.serverpool.repositories.ClientRepository;
-import com.project.serverpool.repositories.ServerRepository;
+
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.aerospike.config.AbstractAerospikeDataConfiguration;
 import org.springframework.data.aerospike.config.AerospikeDataSettings;
-import org.springframework.data.aerospike.core.AerospikeTemplate;
 import org.springframework.data.aerospike.repository.config.EnableAerospikeRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.policy.ClientPolicy;
 import org.springframework.validation.annotation.Validated;
-
 import javax.validation.constraints.NotEmpty;
 import java.util.Collection;
-import java.util.List;
 
 @EnableAerospikeRepositories(basePackages = "com.project.serverpool.repositories")
 @EnableConfigurationProperties(AerospikeConfiguration.AerospikeConfigurationProperties.class)
@@ -41,19 +31,6 @@ public class AerospikeConfiguration extends AbstractAerospikeDataConfiguration {
     protected String nameSpace() {
         return properties.getNamespace();
     }
-
-    // Optional. Only needed when you need custom converters
-//    @Override
-//    protected List<?> customConverters() {
-//        return List.of(
-//                CommentsKey.CommentsKeyToStringConverter.INSTANCE,
-//                CommentsKey.StringToCommentsKeyConverter.INSTANCE,
-//                UserDataConverters.MapToUserDataToConverter.INSTANCE,
-//                UserDataConverters.UserDataToMapConverter.INSTANCE,
-//                ArticleDocumentConverters.AerospikeReadDataToArticleDocumentToConverter.INSTANCE,
-//                new ArticleDocumentConverters.ArticleDocumentToAerospikeWriteDataConverter(properties.getNamespace(), ArticleDocument.SET_NAME)
-//        );
-//    }
 
     @Data
     @Validated // add this annotation if you want @ConfigurationProperties to be validated!

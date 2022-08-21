@@ -2,15 +2,9 @@ package com.project.serverpool.domain;
 
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
-import com.aerospike.mapper.annotations.AerospikeBin;
-import com.aerospike.mapper.annotations.AerospikeKey;
-import com.aerospike.mapper.annotations.AerospikeRecord;
 import lombok.*;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.aerospike.mapping.Document;
 import org.springframework.data.annotation.Id;
-import org.springframework.stereotype.Component;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -28,8 +22,6 @@ import org.springframework.data.aerospike.annotation.Indexed;
 public class Server {
     @Id
     private String id;
-
-
 
 
     @Indexed(type = IndexType.STRING, collectionType = IndexCollectionType.DEFAULT)
