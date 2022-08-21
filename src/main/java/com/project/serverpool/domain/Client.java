@@ -1,47 +1,34 @@
 package com.project.serverpool.domain;
 
-import com.aerospike.mapper.annotations.AerospikeBin;
-import com.aerospike.mapper.annotations.AerospikeKey;
-import com.aerospike.mapper.annotations.AerospikeRecord;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import lombok.*;
+import org.springframework.data.aerospike.mapping.Document;
+import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.UUID;
 
-@Getter
-@Setter
-@AerospikeRecord(namespace="test", set="client")
-@ComponentScan
+
+@Data
+@Document
+@AllArgsConstructor
 public class Client {
 
-    @AerospikeKey
-    @AerospikeBin(name = "PK")
+    @Id
     private String id;
 
-    @AerospikeBin
     @NotNull
     @NotEmpty
     private String database;
 
 
-    @AerospikeBin
     @NotNull
     @NotEmpty
-    private int memory ;
+    private long memory ;
 
-    @AerospikeBin
     private String privateData ;
-    @AerospikeBin
     private String anotherData ;
-    @AerospikeBin
     private String something ;
 
     public Client() {

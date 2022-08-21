@@ -1,4 +1,4 @@
-package com.project.serverpool.model.dto;
+package com.project.serverpool.DTO;
 
 
 
