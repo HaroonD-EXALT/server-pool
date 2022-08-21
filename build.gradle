@@ -25,11 +25,14 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.modelmapper:modelmapper:3.1.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 
     //areospike dependency
     implementation "com.aerospike:aerospike-client:6.0.1"
-    implementation "com.aerospike:java-object-mapper:2.0.0"
+    implementation "com.aerospike:spring-data-aerospike:3.2.0"
+
 }
 
 tasks.named('test') {
