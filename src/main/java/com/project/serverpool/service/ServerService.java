@@ -6,14 +6,15 @@ import com.project.serverpool.repositories.ClientRepository;
 import com.project.serverpool.repositories.ServerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class ServerService {
+public class ServerService implements IServerService {
 
-    private ServerRepository serverRepository;
+    private final ServerRepository serverRepository;
     private ClientRepository clientRepository;
 
     @Autowired
@@ -27,23 +28,31 @@ public class ServerService {
                             "server": Server,
                          }
     */
-    private static Map<Integer, Map<String, Object>> waitingList = new HashMap<>();
+    private static final Map<Integer, Map<String, Object>> waitingList = new HashMap<>();
 
-
+    @Override
     public List<Server> getAllServerPools() {
         return StreamSupport.stream(serverRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
+    @Override
     public Server locateServer(Client client) throws Exception {
         Server server;
         boolean isRecourseLocatedInCreatingSate = false;
         clientRepository.save(client);
         // synchronized on serverRepository to ensure that at most there is one tread search on the database
         synchronized (serverRepository) {
-            server = serverRepository.findByCapacityIsGreaterThanEqualAndStateEqualsOrderByCapacityAsc(client.getMemory(), "active");
-            System.out.println(server);
+            List<Server> servers = serverRepository.findByCapacityIsGreaterThanEqualAndStateEqualsOrderByCapacityAsc(client.getMemory(), "active");
+            System.out.println("*****************");
+            for (Server se:
+                 servers) {
+                System.out.println(se);
+            }
+            System.out.println("*****************");
+            server = servers.stream().findFirst().orElse(null);
             if (server != null) {
                 //there is available recourse in the current active servers
+                System.out.println("locate new Resource: "+client);
                 server.setCapacity(server.getCapacity() - client.getMemory());
                 server.addClient(client);
                 //update server
@@ -59,6 +68,7 @@ public class ServerService {
             for (Map.Entry<Integer, Map<String, Object>> entry : waitingList.entrySet()) {
                 //ensure that only one thread is read/write the list
                 //to read the most recent data from the list
+                //#TODO:Sort the waiting list to get the best result
                 synchronized (waitingList) {
                     int serverKey = entry.getKey();
                     Map<String, Object> serverData = entry.getValue();
@@ -71,11 +81,13 @@ public class ServerService {
                         entryServer.setCapacity(leftRecourse);
                         entryServer.setClients(clients);
                         serverData.put("server", entryServer);
+                        System.out.println("in the waiting list: "+client);
                         waitingList.put(serverKey, serverData);
                         // #TODO:solve return issue
                         //server in the creating state
                         isRecourseLocatedInCreatingSate = true;
                         server = entryServer;
+                        break;
                     }
                 }
             }
@@ -97,8 +109,10 @@ public class ServerService {
     }
 
 
+    @Override
     public synchronized Server createNewServer(Client client) throws Exception {
         try {
+            System.out.println("create new server: "+client);
             Server server = serverRepository.save(new Server());
             // adding new server to waiting list
             synchronized (waitingList) {
@@ -107,7 +121,7 @@ public class ServerService {
                     put("server", server);
                 }});
             }
-            System.out.println("server Created!");
+//            System.out.println("server Created!");
             wait(20000);
             Map<String, Object> serverData = waitingList.get(server.hashCode());
             Server entryServer = (Server) serverData.get("server");
@@ -129,11 +143,13 @@ public class ServerService {
     }
 
 
-    public void deleteServer(String id) throws Exception {
+    @Override
+    public void deleteServer(String id)  {
         serverRepository.deleteById(id);
     }
 
-    public void deleteAllServers() throws Exception {
+    @Override
+    public void deleteAllServers()  {
         serverRepository.deleteAll();
     }
 }
