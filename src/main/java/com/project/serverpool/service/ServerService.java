@@ -28,7 +28,7 @@ public class ServerService implements IServerService {
                             "server": Server,
                          }
     */
-    private static final Map<Integer, Map<String, Object>> waitingList = new HashMap<>();
+    private volatile static Map<Integer, Map<String, Object>> waitingList = new HashMap<>();
 
     @Override
     public List<Server> getAllServerPools() {
@@ -44,15 +44,15 @@ public class ServerService implements IServerService {
         synchronized (serverRepository) {
             List<Server> servers = serverRepository.findByCapacityIsGreaterThanEqualAndStateEqualsOrderByCapacityAsc(client.getMemory(), "active");
             System.out.println("*****************");
-            for (Server se:
-                 servers) {
+            for (Server se :
+                    servers) {
                 System.out.println(se);
             }
             System.out.println("*****************");
             server = servers.stream().findFirst().orElse(null);
             if (server != null) {
                 //there is available recourse in the current active servers
-                System.out.println("locate new Resource: "+client);
+                System.out.println("locate new Resource: " + client);
                 server.setCapacity(server.getCapacity() - client.getMemory());
                 server.addClient(client);
                 //update server
@@ -69,27 +69,27 @@ public class ServerService implements IServerService {
                 //ensure that only one thread is read/write the list
                 //to read the most recent data from the list
                 //#TODO:Sort the waiting list to get the best result
-                synchronized (waitingList) {
-                    int serverKey = entry.getKey();
-                    Map<String, Object> serverData = entry.getValue();
-                    Server entryServer = (Server) serverData.get("server");
-                    //if the current server has available recourse
-                    if (entryServer.getCapacity() >= client.getMemory()) {
-                        long leftRecourse = entryServer.getCapacity() - client.getMemory();
-                        List<Client> clients = entryServer.getClients();
-                        clients.add(client);
-                        entryServer.setCapacity(leftRecourse);
-                        entryServer.setClients(clients);
-                        serverData.put("server", entryServer);
-                        System.out.println("in the waiting list: "+client);
-                        waitingList.put(serverKey, serverData);
-                        // #TODO:solve return issue
-                        //server in the creating state
-                        isRecourseLocatedInCreatingSate = true;
-                        server = entryServer;
-                        break;
-                    }
+
+                int serverKey = entry.getKey();
+                Map<String, Object> serverData = entry.getValue();
+                Server entryServer = (Server) serverData.get("server");
+                //if the current server has available recourse
+                if (entryServer.getCapacity() >= client.getMemory()) {
+                    long leftRecourse = entryServer.getCapacity() - client.getMemory();
+                    List<Client> clients = entryServer.getClients();
+                    clients.add(client);
+                    entryServer.setCapacity(leftRecourse);
+                    entryServer.setClients(clients);
+                    serverData.put("server", entryServer);
+                    System.out.println("in the waiting list: " + client);
+                    waitingList.put(serverKey, serverData);
+                    // #TODO:solve return issue
+                    //server in the creating state
+                    isRecourseLocatedInCreatingSate = true;
+                    server = entryServer;
+                    break;
                 }
+
             }
             // current waiting list array do not have available resource in the creating state servers
             // spin new server
@@ -110,31 +110,35 @@ public class ServerService implements IServerService {
 
 
     @Override
-    public synchronized Server createNewServer(Client client) throws Exception {
+    public Server createNewServer(Client client) throws Exception {
         try {
-            System.out.println("create new server: "+client);
-            Server server = serverRepository.save(new Server());
+            Server server;
+            System.out.println("create new server: " + client);
             // adding new server to waiting list
-            synchronized (waitingList) {
+            synchronized (this) {
+                server = serverRepository.save(new Server());
                 server.setCapacity(server.getCapacity() - client.getMemory());
                 waitingList.put(server.hashCode(), new HashMap() {{
                     put("server", server);
                 }});
-            }
+
 //            System.out.println("server Created!");
-            wait(20000);
+                wait(20000);
+            }
+
+
             Map<String, Object> serverData = waitingList.get(server.hashCode());
             Server entryServer = (Server) serverData.get("server");
-            List<Client> clients = (List<Client>) serverData.get("clients");
+
             server.setState("active");
             server.setCapacity(entryServer.getCapacity());
             entryServer.addClient(client);
             server.setClients(entryServer.getClients());
+
             clientRepository.save(client);
             serverRepository.save(server);
-            synchronized (waitingList) {
-                waitingList.remove(server.hashCode());
-            }
+            waitingList.remove(server.hashCode());
+
             return server;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -144,12 +148,12 @@ public class ServerService implements IServerService {
 
 
     @Override
-    public void deleteServer(String id)  {
+    public void deleteServer(String id) {
         serverRepository.deleteById(id);
     }
 
     @Override
-    public void deleteAllServers()  {
+    public void deleteAllServers() {
         serverRepository.deleteAll();
     }
 }
