@@ -41,7 +41,7 @@ public class ServerService implements IServerService {
         boolean isRecourseLocatedInCreatingSate = false;
         clientRepository.save(client);
         // synchronized on serverRepository to ensure that at most there is one tread search on the database
-        synchronized (serverRepository) {
+        synchronized (this) {
             List<Server> servers = serverRepository.findByCapacityIsGreaterThanEqualAndStateEqualsOrderByCapacityAsc(client.getMemory(), "active");
             System.out.println("*****************");
             for (Server se :
@@ -50,20 +50,21 @@ public class ServerService implements IServerService {
             }
             System.out.println("*****************");
             server = servers.stream().findFirst().orElse(null);
+
+
+            //there is available recourse in the current active servers
             if (server != null) {
-                //there is available recourse in the current active servers
                 System.out.println("locate new Resource: " + client);
                 server.setCapacity(server.getCapacity() - client.getMemory());
                 server.addClient(client);
                 //update server
                 serverRepository.save(server);
+                return server;
+
             }
-        }
 
-
-        //no available recourse in the current active servers
-        //check the servers in the creation state
-        if (server == null) {
+            //no available recourse in the current active servers
+            //check the servers in the creation state
             //loop over waiting list array to check if is there available resource in the creating state servers
             for (Map.Entry<Integer, Map<String, Object>> entry : waitingList.entrySet()) {
                 //ensure that only one thread is read/write the list
@@ -89,23 +90,19 @@ public class ServerService implements IServerService {
                     server = entryServer;
                     break;
                 }
-
             }
-            // current waiting list array do not have available resource in the creating state servers
-            // spin new server
-            if (isRecourseLocatedInCreatingSate) {
-                //wait until finish creating
-                while (waitingList.get(server.hashCode()) != null) {
-                }
-                return server;
-
-            } else {
+            //no available servers in the list
+            if (!isRecourseLocatedInCreatingSate) {
                 server = createNewServer(client);
             }
-
         }
-        return server;
+        //wait until finish creating
+        while (waitingList.get(server.hashCode()) != null) {
+        }
+        // current waiting list array do not have available resource in the creating state servers
+        // spin new server
 
+        return server;
     }
 
 
