@@ -4,8 +4,8 @@ package com.project.serverpool.controller;
 import com.aerospike.client.AerospikeException;
 import com.project.serverpool.domain.Client;
 import com.project.serverpool.domain.Server;
-import com.project.serverpool.DTO.ClientDto;
-import com.project.serverpool.DTO.ServerDto;
+import com.project.serverpool.dto.ClientDto;
+import com.project.serverpool.dto.ServerDto;
 import com.project.serverpool.service.ServerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class ServerController {
         this.mapper = mapper;
     }
 
-    @GetMapping
+    @GetMapping("/servers")
     public ResponseEntity getAllServer() {
         List<Server> serverPoolList = (List<Server>) serverService.getAllServerPools();
         return ResponseEntity.status(HttpStatus.OK).body(serverPoolList.stream().map(server -> mapper.map(server, ServerDto.class)));
@@ -41,7 +41,6 @@ public class ServerController {
             Server server;
             Client client;
             client = mapper.map(clientDto, Client.class);
-//            System.out.println(client);
             try {
                 server = serverService.locateServer(client);
             } catch (Exception e) {
@@ -76,7 +75,7 @@ public class ServerController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/servers")
     public ResponseEntity<Object> deleteAllServer() {
         try {
             serverService.deleteAllServers();

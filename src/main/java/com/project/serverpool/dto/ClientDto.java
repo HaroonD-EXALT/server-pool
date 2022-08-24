@@ -1,4 +1,4 @@
-package com.project.serverpool.DTO;
+package com.project.serverpool.dto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
