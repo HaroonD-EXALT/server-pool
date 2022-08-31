@@ -20,6 +20,11 @@ public class ServerService {
     public ServerService(ServerRepository serverRepository, ClientRepository clientRepository) {
         this.serverRepository = serverRepository;
         this.clientRepository = clientRepository;
+
+
+
+
+
     }
 
     /*
@@ -116,7 +121,11 @@ public class ServerService {
             server.setCapacity(entryServer.getCapacity());
             entryServer.addClient(client);
             server.setClients(entryServer.getClients());
+
+
             clientRepository.save(client);
+
+
             serverRepository.save(server);
             synchronized (waitingList) {
                 waitingList.remove(server.hashCode());
@@ -134,6 +143,12 @@ public class ServerService {
     }
 
     public void deleteAllServers() throws Exception {
+
+
+
         serverRepository.deleteAll();
     }
 }
+
+
+

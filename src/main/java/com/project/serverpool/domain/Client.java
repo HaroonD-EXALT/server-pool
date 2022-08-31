@@ -19,6 +19,9 @@ public class Client {
     private String id;
 
     @NotNull
+
+
+
     @NotEmpty
     private String database;
 
